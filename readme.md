@@ -8,7 +8,7 @@ To create a new problem folder use
 node create.js {n}
 ````
 
-where __n__ is the problem number.
+where __{n}__ is the problem number.
 
 ## Set your session token
 to set your session TOKEN
@@ -24,6 +24,14 @@ To get the input file for the problem _3_
 ```bash
 node input.js 3 > p3/input.txt
 ```
+
+## Use init.sh 
+An alternative to executing the two commands (create, input), we can init a new problem and fetch the problem data in one step.
+```bash
+init.sh 4
+````
+this will automate the creation and fetching of the problem 4 in one step.
+
 
 ## How to open this Repo
 Use VScode with the Polyglot Notebooks extension.
