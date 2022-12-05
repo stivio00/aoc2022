@@ -25,3 +25,6 @@ To get the input file for the problem _3_
 node input.js 3 > p3/input.txt
 ```
 
+## How to open this Repo
+Use VScode with the Polyglot Notebooks extension.
+The .NET Extension Pack v1.0.9 is recommended with .NET 6 or 7
