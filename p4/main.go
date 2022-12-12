@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -36,7 +37,14 @@ func (e *ElvesPair) FullContains() bool {
 	firstContainsSecond := e.First.SectionsRange.FullyContains(&e.Second.SectionsRange)
 	secondContainsFirst := e.Second.SectionsRange.FullyContains(&e.First.SectionsRange)
 	return firstContainsSecond || secondContainsFirst
+}
 
+func (e *ElvesPair) Overlapped() bool {
+	x2 := float64(e.First.SectionsRange.To)
+	y1 := float64(e.Second.SectionsRange.From)
+	y2 := float64(e.Second.SectionsRange.To)
+	x1 := float64(e.First.SectionsRange.From)
+	return math.Max(x1, y1) <= math.Min(x2, y2)
 }
 
 func ParseLine(line string) *ElvesPair {
@@ -72,7 +80,8 @@ func ParseLine(line string) *ElvesPair {
 
 func main() {
 	fmt.Println("Day 4")
-	var overlapperElves int = 0
+	var intersectElves int = 0
+	var overlappedElves int = 0
 
 	file, err := os.Open("input.txt")
 	if err != nil {
@@ -89,7 +98,11 @@ func main() {
 		}
 
 		if elvePair.FullContains() {
-			overlapperElves += 1
+			intersectElves += 1
+		}
+
+		if elvePair.Overlapped() {
+			overlappedElves += 1
 		}
 	}
 
@@ -97,6 +110,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("result = %#v", overlapperElves)
+	fmt.Printf("part 1 result = %#v\n", intersectElves)
+	fmt.Printf("part 2 result = %#v\n", overlappedElves)
 
 }
