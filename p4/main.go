@@ -1,3 +1,4 @@
+// AoC 2022 : https://adventofcode.com/2022/day/4
 // Author Stephen Krol
 package main
 
@@ -39,6 +40,10 @@ func (e *ElvesPair) FullContains() bool {
 }
 
 func ParseLine(line string) *ElvesPair {
+	if len(line) < 7 {
+		return nil
+	}
+
 	elveRangeString1, elveRangeString2, _ := strings.Cut(line, ",")
 	elveSectionStringFrom1, elveSectionStringTo1, _ := strings.Cut(elveRangeString1, "-")
 	elveSectionStringFrom2, elveSectionStringTo2, _ := strings.Cut(elveRangeString2, "-")
@@ -78,6 +83,11 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		elvePair := ParseLine(scanner.Text())
+
+		if elvePair == nil {
+			continue
+		}
+
 		if elvePair.FullContains() {
 			overlapperElves += 1
 		}
