@@ -39,7 +39,7 @@ func TestWebPageSamplePart1(t *testing.T) {
 			pair := ParseLine(tC.input)
 			result := pair.FullContains()
 			if result != tC.expected {
-				t.Errorf("FullConatins in  %v returns %v, expected %v \n", pair, result, tC.expected)
+				t.Errorf("FullContains in  %v returns %v, expected %v \n", pair, result, tC.expected)
 			}
 		})
 	}
@@ -80,7 +80,7 @@ func TestWebPageSamplePart2(t *testing.T) {
 			pair := ParseLine(tC.input)
 			result := pair.Overlapped()
 			if result != tC.expected {
-				t.Errorf("FullConatins in  %v returns %v, expected %v \n", pair, result, tC.expected)
+				t.Errorf("Overlapped in  %v returns %v, expected %v \n", pair, result, tC.expected)
 			}
 		})
 	}
