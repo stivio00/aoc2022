@@ -69,18 +69,3 @@ func (s *Stack) String() string {
 	}
 	return b.String()
 }
-
-// PART2 of the puzzle
-func (s *Stack) PopN(n uint32) []interface{} {
-	out := make([]interface{}, n)
-	for i := s.size; i > s.size-n; i-- {
-		out = append(out, s.data[i])
-	}
-	s.size -= n
-	return out
-}
-
-func (s *Stack) PushN([]interface{}) {
-	//TODO Push in the same order
-
-}
