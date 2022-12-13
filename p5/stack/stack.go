@@ -30,6 +30,9 @@ func (s *Stack) Clear() {
 }
 
 func (s *Stack) Pop() interface{} {
+	if s.size <= 0 {
+		return nil
+	}
 	s.size -= 1
 	return s.data[s.size]
 }
@@ -47,6 +50,9 @@ func (s *Stack) Size() uint32 {
 
 // non standard stack method
 func (s *Stack) Flip() {
+	if s.size == 0 {
+		return
+	}
 	for i, j := uint32(0), s.size-1; i < j; i, j = i+1, j-1 {
 		s.data[i], s.data[j] = s.data[j], s.data[i]
 	}
@@ -62,8 +68,12 @@ func (s *Stack) Print() {
 
 // PART2 of the puzzle
 func (s *Stack) PopN(n uint32) []interface{} {
-	//TODO POP in the same order
-	return nil
+	out := make([]interface{}, n)
+	for i := s.size; i > s.size-n; i-- {
+		out = append(out, s.data[i])
+	}
+	s.size -= n
+	return out
 }
 
 func (s *Stack) PushN([]interface{}) {

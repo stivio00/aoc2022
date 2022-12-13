@@ -15,6 +15,7 @@ const (
 )
 
 var (
+	// each lane of cranes is a stack
 	cranes [stacks]*stack.Stack
 )
 
@@ -42,7 +43,7 @@ func ParseCommand(line string) *CommandMove {
 }
 
 func ParseStack(scanner *bufio.Scanner) {
-	const sep int = 3
+	const sep int = 3 // sepration within data  "] [" = 3 chars
 	//each line
 	for i := 0; i < int(stackheigth); i++ {
 		scanner.Scan()
@@ -62,6 +63,11 @@ func ParseStack(scanner *bufio.Scanner) {
 
 func main() {
 	fmt.Printf("Day 5\n")
+	Part1()
+	Part2()
+}
+
+func Part2() {
 	initStacks()
 
 	file, err := os.Open("input.txt")
@@ -73,16 +79,52 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	ParseStack(scanner)
 
-	// foreach command
 	for scanner.Scan() {
 		if scanner.Text() == "" {
-			continue //ignore empty lines
+			continue
+		}
+		c := ParseCommand(scanner.Text())
+		tempStack := stack.New()
+		var i int
+		for i = 0; i < c.qty; i++ {
+			item := cranes[c.from-1].Pop()
+			if item == nil {
+				break
+			}
+			tempStack.Push(item)
+		}
+		tempStack.Flip()
+		for j := 0; j < i; j++ {
+			cranes[c.from-1].Push(tempStack.Pop())
+		}
+	}
+	fmt.Print("Part2: ")
+	PrintTopItemOnCranes()
+}
+
+func Part1() {
+	initStacks()
+
+	file, err := os.Open("input.txt")
+	if err != nil {
+		panic("Error: " + err.Error())
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	ParseStack(scanner)
+
+	for scanner.Scan() {
+		if scanner.Text() == "" {
+			continue
 		}
 		c := ParseCommand(scanner.Text())
 		for i := 0; i < c.qty; i++ {
+
 			cranes[c.to-1].Push(cranes[c.from-1].Pop())
 		}
 	}
+	fmt.Print("Part1: ")
 	PrintTopItemOnCranes()
 }
 
