@@ -11,12 +11,15 @@ node create.js {n}
 where __{n}__ is the problem number.
 
 ## Set your session token
-to set your session TOKEN
+To set your session TOKEN
 set the file session.env with the cookie content
 ```text
 session=a235a33e57c...
 ```
 This session token is used by the input.js utility script.
+
+### Where to find the session token
+By using Chrome developer tools you can inspect into secure cookies
 
 ## Get input File
 
@@ -40,6 +43,8 @@ The .NET Extension Pack v1.0.9 is recommended with .NET 6 or 7
 ### Deps
  * Node JS 18.x
  * DotNet 5, 6 or 7 
+ * Go 1.19.4
  * Bash Shell (or ZSH)
  * VS Code
    * .NET Extension Pack
+   * Go v0.36.0
