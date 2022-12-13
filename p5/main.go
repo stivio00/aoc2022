@@ -85,22 +85,23 @@ func Part2() {
 		}
 		c := ParseCommand(scanner.Text())
 		tempStack := stack.New()
-		var i int
-		for i = 0; i < c.qty; i++ {
+
+		for i := 0; i < c.qty; i++ {
 			item := cranes[c.from-1].Pop()
 			if item == nil {
-				fmt.Print()
 				break
 			}
 			tempStack.Push(item)
 		}
-		tempStack.Flip()
-		for j := 0; j < i; j++ {
-			cranes[c.from-1].Push(tempStack.Pop())
+
+		tempStackOriginalSize := int(tempStack.Size())
+		for j := 0; j < tempStackOriginalSize; j++ {
+			cranes[c.to-1].Push(tempStack.Pop())
 		}
 	}
 	fmt.Print("Part2: ")
 	PrintTopItemOnCranes()
+
 }
 
 func Part1() {
@@ -121,7 +122,6 @@ func Part1() {
 		}
 		c := ParseCommand(scanner.Text())
 		for i := 0; i < c.qty; i++ {
-
 			cranes[c.to-1].Push(cranes[c.from-1].Pop())
 		}
 	}
@@ -145,5 +145,11 @@ func initStacks() {
 func flipStacks() {
 	for i := 0; i < int(stacks); i++ {
 		cranes[i].Flip()
+	}
+}
+
+func ShowAllStacks() {
+	for i := 0; i < int(stacks); i++ {
+		fmt.Println(cranes[i].String())
 	}
 }
