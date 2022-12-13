@@ -34,7 +34,10 @@ func TestStackPrint(t *testing.T) {
 	s := New()
 	s.Push(41)
 	s.Push(42)
-
-	//TODO
-
+	got := s.String()
+	want := "Stack(size:2) 41 42 "
+	t.Log(got)
+	if got != want {
+		t.Error()
+	}
 }

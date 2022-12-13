@@ -1,6 +1,9 @@
 package stack
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 var (
 	initialCap = 64
@@ -58,12 +61,13 @@ func (s *Stack) Flip() {
 	}
 }
 
-func (s *Stack) Print() {
-	fmt.Print("Stack(size:", s.size, ") ")
+func (s *Stack) String() string {
+	b := strings.Builder{}
+	b.WriteString(fmt.Sprintf("Stack(size:%d) ", s.size))
 	for i := uint32(0); i < s.size; i++ {
-		fmt.Print(s.data[i], " ")
+		b.WriteString(fmt.Sprintf("%v ", s.data[i]))
 	}
-	fmt.Print("\n")
+	return b.String()
 }
 
 // PART2 of the puzzle

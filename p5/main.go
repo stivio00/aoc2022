@@ -89,6 +89,7 @@ func Part2() {
 		for i = 0; i < c.qty; i++ {
 			item := cranes[c.from-1].Pop()
 			if item == nil {
+				fmt.Print()
 				break
 			}
 			tempStack.Push(item)
