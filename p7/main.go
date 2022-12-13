@@ -49,7 +49,7 @@ func (p *Path) Pwd() string {
 }
 
 // Print Filesystem
-func (p *Directory) String() string {
+func (d *Directory) String() string {
 	builder := strings.Builder{}
 
 	printFile := func(file File, level int) {
@@ -58,19 +58,20 @@ func (p *Directory) String() string {
 		builder.WriteString(s)
 	}
 
-	printDir := func(dir Directory, level int) string {
+	var printDir func(Directory, int)
+	printDir = func(dir Directory, level int) {
 		builder.WriteString(strings.Repeat(" ", level))
 		s := fmt.Sprintf("- %s (dir)\n", dir.Name)
 		builder.WriteString(s)
+		for _, f := range dir.Files {
+			printFile(f, level+1)
+		}
+		for _, subdir := range dir.Directories {
+			printDir(subdir, level+1)
+		}
 	}
 
-	for i, node := range p.Nodes {
-		builder.WriteString(node)
-		if i == 0 || i == len(p.Nodes)-1 {
-			continue
-		}
-		builder.WriteString("/")
-	}
+	printDir(*d, 0)
 
 	return builder.String()
 }
@@ -101,6 +102,9 @@ func (p *Path) Cd(dir string) {
 }
 
 func getLinetype(line string) LineType {
+	if line == "" {
+		return Unknow
+	}
 	if line[0] == '$' {
 		if line[2:4] == "cd" {
 			return CommandCd
@@ -124,16 +128,41 @@ func main() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	//var pwd Path
+	var cwd Path //Current working dir
+	var root Directory
 
 	var line string
+	// Build fs
 	for scanner.Scan() {
 		line = scanner.Text()
 		fmt.Println(line)
 		lineType := getLinetype(line)
-		if lineType == CommandCd {
-			//TODO:
+		switch lineType {
+		case CommandCd:
+			if len(cwd.Nodes) == 0 {
+				//start and ready to add the root
+				root = CreateDir(line)
+				cwd.Nodes = append(cwd.Nodes, root.Name)
+			} else {
+				d := CreateDir(line)
+				cwd.Cd(d.Name)
+				if d.Name == ".." {
+					continue
+				}
+				cwd.Nodes = append(cwd.Nodes, root.Name)
+				//TODO: add relation with path and dir to navigate the fs
+			}
+		case CommandLs:
+			continue
+		case OutDir:
+			//cur dir add dir
+		case OutFile:
+			// add file to current dir
+
 		}
 	}
+
+	//TODO: transvers tree and calculate sizes
+	// transverse dir and get problem sizes
 
 }
