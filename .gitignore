@@ -1,2 +1,8 @@
+
+#ignore my private session cookie
 session.env
+#ignore go binaries
 p4/p4
+p5/p5
+p6/p6
+p7/p7
