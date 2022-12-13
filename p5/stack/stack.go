@@ -3,7 +3,7 @@ package stack
 import "fmt"
 
 var (
-	initialCap = 32
+	initialCap = 64
 )
 
 type Stack struct {
@@ -58,4 +58,15 @@ func (s *Stack) Print() {
 		fmt.Print(s.data[i], " ")
 	}
 	fmt.Print("\n")
+}
+
+// PART2 of the puzzle
+func (s *Stack) PopN(n uint32) []interface{} {
+	//TODO POP in the same order
+	return nil
+}
+
+func (s *Stack) PushN([]interface{}) {
+	//TODO Push in the same order
+
 }

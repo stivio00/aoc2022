@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 
@@ -14,7 +15,7 @@ const (
 )
 
 var (
-	cranes [stacks]string
+	cranes [stacks]*stack.Stack
 )
 
 type CommandMove struct {
@@ -40,12 +41,28 @@ func ParseCommand(line string) *CommandMove {
 	}
 }
 
-func ParseStack(f *os.File) {
-
+func ParseStack(scanner *bufio.Scanner) {
+	const sep int = 3
+	//each line
+	for i := 0; i < int(stackheigth); i++ {
+		scanner.Scan()
+		line := scanner.Text()
+		//each columns
+		for j := 0; j < int(stacks); j++ {
+			c := string(line[1+sep*j+j])
+			if c != " " {
+				cranes[j].Push(c)
+			}
+		}
+	}
+	flipStacks()
+	scanner.Scan() //number lines
+	scanner.Scan() //empty lines
 }
 
 func main() {
 	fmt.Printf("Day 5\n")
+	initStacks()
 
 	file, err := os.Open("input.txt")
 	if err != nil {
@@ -53,24 +70,37 @@ func main() {
 	}
 	defer file.Close()
 
-	ParseStack(file)
+	scanner := bufio.NewScanner(file)
+	ParseStack(scanner)
 
-	c := ParseCommand("move 1 from 3 to 6")
-	fmt.Println(c)
+	// foreach command
+	for scanner.Scan() {
+		if scanner.Text() == "" {
+			continue //ignore empty lines
+		}
+		c := ParseCommand(scanner.Text())
+		for i := 0; i < c.qty; i++ {
+			cranes[c.to-1].Push(cranes[c.from-1].Pop())
+		}
+	}
+	PrintTopItemOnCranes()
+}
 
-	s := stack.New()
-	s.Push("W")
-	s.Push(42)
-	s.Print()
-	s.Pop()
-	s.Print()
-	s.Clear()
-	s.Print()
+func PrintTopItemOnCranes() {
+	for i := 0; i < int(stacks); i++ {
+		fmt.Print(cranes[i].Pop())
+	}
+	fmt.Print("\n")
+}
 
-	s.Push(9)
-	s.Push(12)
-	s.Print()
-	s.Flip()
-	s.Print()
+func initStacks() {
+	for i := 0; i < int(stacks); i++ {
+		cranes[i] = stack.New()
+	}
+}
 
+func flipStacks() {
+	for i := 0; i < int(stacks); i++ {
+		cranes[i].Flip()
+	}
 }
