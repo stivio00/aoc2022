@@ -17,6 +17,10 @@ const (
 	Unknow
 )
 
+const (
+	fsFormatSpacing int = 4
+)
+
 type File struct {
 	Name string
 	Size int
@@ -34,7 +38,7 @@ type FileSystem struct {
 	Root      *Directory
 }
 
-// Print working directory
+// Create a new fileSystem with the roor ="/"
 func NewFilesystem() *FileSystem {
 	fs := &FileSystem{PathNodes: make([]string, 0), Root: nil}
 	fs.Root = CreateDir("dir /")
@@ -79,14 +83,14 @@ func (d *Directory) String() string {
 	builder := strings.Builder{}
 
 	printFile := func(file *File, level int) {
-		builder.WriteString(strings.Repeat(" ", level))
+		builder.WriteString(strings.Repeat(" ", level*fsFormatSpacing))
 		s := fmt.Sprintf("- %s (file, size=%d)\n", file.Name, file.Size)
 		builder.WriteString(s)
 	}
 
 	var printDir func(*Directory, int) //fowar declaration for recursive use
 	printDir = func(dir *Directory, level int) {
-		builder.WriteString(strings.Repeat(" ", level))
+		builder.WriteString(strings.Repeat(" ", level*fsFormatSpacing))
 		s := fmt.Sprintf("- %s (dir)\n", dir.Name)
 		builder.WriteString(s)
 
@@ -105,7 +109,7 @@ func (d *Directory) String() string {
 
 func ParseCdLine(line string) string {
 	var dirName string
-	fmt.Sscanf(line, "cd %s", &dirName)
+	fmt.Sscanf(line, "$ cd %s", &dirName)
 	return dirName
 }
 
@@ -205,5 +209,5 @@ func main() {
 
 	//TODO: transvers tree and calculate sizes
 	// transverse dir and get problem sizes
-
+	fmt.Println(fs.Root.String())
 }
