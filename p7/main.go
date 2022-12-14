@@ -25,21 +25,29 @@ type File struct {
 type Directory struct {
 	Name        string
 	Size        int
-	Files       []File
-	Directories []Directory
+	Files       map[string]*File      //Key: file name
+	Directories map[string]*Directory //Key: directory name
 }
 
-type Path struct {
-	Nodes []string
+type FileSystem struct {
+	PathNodes []string //Current working path
+	Root      *Directory
 }
 
 // Print working directory
-func (p *Path) Pwd() string {
+func NewFilesystem() *FileSystem {
+	fs := &FileSystem{PathNodes: make([]string, 0), Root: nil}
+	fs.Root = CreateDir("dir /")
+	return fs
+}
+
+// Print working directory
+func (fs *FileSystem) Pwd() string {
 	builder := strings.Builder{}
 
-	for i, node := range p.Nodes {
+	for i, node := range fs.PathNodes {
 		builder.WriteString(node)
-		if i == 0 || i == len(p.Nodes)-1 {
+		if i == 0 || i == len(fs.PathNodes)-1 {
 			continue
 		}
 		builder.WriteString("/")
@@ -48,56 +56,100 @@ func (p *Path) Pwd() string {
 	return builder.String()
 }
 
+func (fs *FileSystem) AddFile(file *File) {
+	fs.GetCurrentDir().Files[file.Name] = file
+}
+
+// Add a new directory in the current dir, if fs is empty then
+func (fs *FileSystem) AddDirectory(dir *Directory) {
+	currentDir := fs.GetCurrentDir()
+	if currentDir == nil {
+		fs.Root = dir
+		return
+	}
+	currentDir.Directories[dir.Name] = dir
+}
+
+func (fs *FileSystem) IsEmpty() bool {
+	return len(fs.PathNodes) == 0
+}
+
 // Print Filesystem
 func (d *Directory) String() string {
 	builder := strings.Builder{}
 
-	printFile := func(file File, level int) {
+	printFile := func(file *File, level int) {
 		builder.WriteString(strings.Repeat(" ", level))
 		s := fmt.Sprintf("- %s (file, size=%d)\n", file.Name, file.Size)
 		builder.WriteString(s)
 	}
 
-	var printDir func(Directory, int)
-	printDir = func(dir Directory, level int) {
+	var printDir func(*Directory, int) //fowar declaration for recursive use
+	printDir = func(dir *Directory, level int) {
 		builder.WriteString(strings.Repeat(" ", level))
 		s := fmt.Sprintf("- %s (dir)\n", dir.Name)
 		builder.WriteString(s)
-		for _, f := range dir.Files {
-			printFile(f, level+1)
+
+		for _, dir := range dir.Directories {
+			printDir(dir, level+1)
 		}
-		for _, subdir := range dir.Directories {
-			printDir(subdir, level+1)
+
+		for _, file := range dir.Files {
+			printFile(file, level+1)
 		}
 	}
 
-	printDir(*d, 0)
-
+	printDir(d, 0)
 	return builder.String()
 }
 
-func CreateFile(line string) File {
+func ParseCdLine(line string) string {
+	var dirName string
+	fmt.Sscanf(line, "cd %s", &dirName)
+	return dirName
+}
+
+func CreateFile(line string) *File {
 	var name string
 	var size int
 	fmt.Sscanf(line, "%d %s", &size, &name)
-	return File{Name: name, Size: size}
+	return &File{Name: name, Size: size}
 }
 
-func CreateDir(line string) Directory {
+func CreateDir(line string) *Directory {
 	var name string
 	fmt.Sscanf(line, "dir %s", &name)
-	return Directory{
+	return &Directory{
 		Name:        name,
-		Files:       make([]File, 0),
-		Directories: make([]Directory, 0),
+		Files:       make(map[string]*File, 0),
+		Directories: make(map[string]*Directory, 0),
 	}
 }
 
-func (p *Path) Cd(dir string) {
-	if dir == ".." {
-		p.Nodes = p.Nodes[:len(p.Nodes)-1]
+func (fs *FileSystem) GetCurrentDir() *Directory {
+	if len(fs.PathNodes) == 0 {
+		return nil
 	}
-	p.Nodes = append(p.Nodes, dir)
+	if len(fs.PathNodes) == 1 {
+		return fs.Root
+	}
+
+	var dir = fs.Root
+	for _, nodeName := range fs.PathNodes[1:] {
+		dir = dir.Directories[nodeName]
+	}
+	return dir
+}
+
+func (fs *FileSystem) Cd(dir string) {
+	if dir == "." {
+		return
+	}
+	if dir == ".." {
+		fs.PathNodes = fs.PathNodes[:len(fs.PathNodes)-1]
+		return
+	}
+	fs.PathNodes = append(fs.PathNodes, dir)
 
 }
 
@@ -128,8 +180,7 @@ func main() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	var cwd Path //Current working dir
-	var root Directory
+	var fs *FileSystem = NewFilesystem()
 
 	var line string
 	// Build fs
@@ -139,26 +190,16 @@ func main() {
 		lineType := getLinetype(line)
 		switch lineType {
 		case CommandCd:
-			if len(cwd.Nodes) == 0 {
-				//start and ready to add the root
-				root = CreateDir(line)
-				cwd.Nodes = append(cwd.Nodes, root.Name)
-			} else {
-				d := CreateDir(line)
-				cwd.Cd(d.Name)
-				if d.Name == ".." {
-					continue
-				}
-				cwd.Nodes = append(cwd.Nodes, root.Name)
-				//TODO: add relation with path and dir to navigate the fs
-			}
+			dirName := ParseCdLine(line)
+			fs.Cd(dirName)
 		case CommandLs:
 			continue
 		case OutDir:
-			//cur dir add dir
+			dir := CreateDir(line)
+			fs.AddDirectory(dir)
 		case OutFile:
-			// add file to current dir
-
+			file := CreateFile(line)
+			fs.AddFile(file)
 		}
 	}
 
