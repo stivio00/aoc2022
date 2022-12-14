@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 )
 
@@ -23,5 +24,11 @@ func main() {
 	}
 
 	FillSum(fs.Root)
+
+	result := Part1(fs)
+	fmt.Println("Part 1: ", result)
+
+	result2 := Part2(fs)
+	fmt.Println("Part 2: ", result2)
 
 }
