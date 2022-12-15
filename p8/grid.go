@@ -55,8 +55,24 @@ func (g *Grid) createEmptyVisibilityGrid() {
 	}
 }
 
+// Part 1, only check around
 func (g *Grid) getVisibility(x, y int) bool {
 	if g.isEdge(x, y) {
+		return true
+	}
+
+	currrentTree, _ := g.current(x, y)
+
+	if val, _ := g.top(x, y); currrentTree > val {
+		return true
+	}
+	if val, _ := g.down(x, y); currrentTree > val {
+		return true
+	}
+	if val, _ := g.left(x, y); currrentTree > val {
+		return true
+	}
+	if val, _ := g.rigth(x, y); currrentTree > val {
 		return true
 	}
 
@@ -94,7 +110,11 @@ func (g *Grid) rigth(x, y int) (int, bool) {
 }
 
 func (g *Grid) SolveVisibility() {
-
+	for i := 0; i < g.Heigth; i++ {
+		for j := 0; j < g.Width; j++ {
+			g.Vis[i][j] = g.getVisibility(i, j)
+		}
+	}
 }
 
 func (g *Grid) CountVisible() int {
