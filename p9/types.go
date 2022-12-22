@@ -62,7 +62,7 @@ func (rope *Rope) Move(command Command) {
 	for i := 0; i < command.Number; i++ {
 		rope.moveHead(command.Type)
 		rope.moveTail(0)
-		rope.recordTailPosition(len(rope.Tails) - 1)
+		rope.recordTailPosition(rope.LastTailIndex())
 	}
 }
 
@@ -94,7 +94,7 @@ func (rope *Rope) moveTail(tailPos int) {
 		rope.Tails[tailPos].Y += dy
 	}
 
-	if tailPos < len(rope.Tails)-1 {
+	if tailPos < rope.LastTailIndex() {
 		rope.moveTail(tailPos + 1)
 	}
 }
@@ -144,4 +144,8 @@ func normalizeDistance(dx, dy int) (int, int) {
 
 func (rope *Rope) recordTailPosition(tailNumber int) {
 	rope.TailHistory.Positions = append(rope.TailHistory.Positions, rope.Tails[tailNumber])
+}
+
+func (rope *Rope) LastTailIndex() int {
+	return len(rope.Tails) - 1
 }
