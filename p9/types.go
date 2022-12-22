@@ -16,7 +16,7 @@ const (
 
 type Rope struct {
 	Head        Position
-	Tail        Position
+	Tails       []Position
 	TailHistory History
 }
 
@@ -32,6 +32,12 @@ type Position struct {
 
 type History struct {
 	Positions []Position
+}
+
+func NewRope(numberOfTails int) *Rope {
+	return &Rope{
+		Tails: make([]Position, numberOfTails),
+	}
 }
 
 func ParseLine(line string) Command {
@@ -54,12 +60,13 @@ func ParseLine(line string) Command {
 
 func (rope *Rope) Move(command Command) {
 	for i := 0; i < command.Number; i++ {
-		rope.moveOne(command.Type)
-		rope.recordTailPosition()
+		rope.moveHead(command.Type)
+		rope.moveTail(0)
+		rope.recordTailPosition(len(rope.Tails) - 1)
 	}
 }
 
-func (rope *Rope) moveOne(direction Direction) {
+func (rope *Rope) moveHead(direction Direction) {
 	switch direction {
 	case Up:
 		rope.Head.X += 1
@@ -70,17 +77,30 @@ func (rope *Rope) moveOne(direction Direction) {
 	case Rigth:
 		rope.Head.Y += 1
 	}
+}
 
-	dx, dy := rope.Head.Distance(rope.Tail)
-	dx, dy = normalizeDistance(dx, dy)
-	if !rope.Head.isTouching(rope.Tail) {
-		rope.Tail.X += dx
-		rope.Tail.Y += dy
+func (rope *Rope) moveTail(tailPos int) {
+	head := rope.Head
+	tail := rope.Tails[tailPos]
+
+	if tailPos != 0 {
+		head = rope.Tails[tailPos-1]
 	}
 
+	dx, dy := head.Distance(tail)
+	dx, dy = normalizeDistance(dx, dy)
+	if !head.isTouching(tail) {
+		rope.Tails[tailPos].X += dx
+		rope.Tails[tailPos].Y += dy
+	}
+
+	if tailPos < len(rope.Tails)-1 {
+		rope.moveTail(tailPos + 1)
+	}
 }
 
 func (rope *Rope) CountTailUniquePositions() int {
+	//using map[T]struct{} to simulate a HashSet
 	unique := make(map[Position]struct{}, 0)
 	for _, position := range rope.TailHistory.Positions {
 		unique[position] = struct{}{}
@@ -122,6 +142,6 @@ func normalizeDistance(dx, dy int) (int, int) {
 	return dx, dy
 }
 
-func (rope *Rope) recordTailPosition() {
-	rope.TailHistory.Positions = append(rope.TailHistory.Positions, rope.Tail)
+func (rope *Rope) recordTailPosition(tailNumber int) {
+	rope.TailHistory.Positions = append(rope.TailHistory.Positions, rope.Tails[tailNumber])
 }
