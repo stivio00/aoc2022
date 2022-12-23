@@ -6,7 +6,7 @@ session.env
 p?/p?
 
 #ignore input files
-**/inpute.txt
+**/input.txt
 
 #mac files
 .DS_Store
