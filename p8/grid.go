@@ -5,6 +5,23 @@ import (
 	"os"
 )
 
+type Direction uint8
+
+const (
+	Left Direction = iota
+	Rigth
+	Top
+	Down
+)
+
+type State uint8
+
+const (
+	Visible State = iota
+	NotVisible
+	Unknow
+)
+
 type Grid struct {
 	Data   [][]int
 	Vis    [][]bool
@@ -56,24 +73,27 @@ func (g *Grid) createEmptyVisibilityGrid() {
 }
 
 // Part 1, only check around
-func (g *Grid) getVisibility(x, y int) bool {
+func (g *Grid) getVisibility(x, y int, direction Direction) bool {
 	if g.isEdge(x, y) {
 		return true
 	}
-
 	currrentTree, _ := g.current(x, y)
 
-	if val, _ := g.top(x, y); currrentTree > val {
-		return true
+	if direction == Top {
+		val, vis := g.current(x-1, y)
+		return currrentTree >= val && vis
 	}
-	if val, _ := g.down(x, y); currrentTree > val {
-		return true
+	if direction == Down {
+		val, vis := g.current(x+1, y)
+		return currrentTree >= val && vis
 	}
-	if val, _ := g.left(x, y); currrentTree > val {
-		return true
+	if direction == Left {
+		val, vis := g.current(x, y-1)
+		return currrentTree >= val && vis
 	}
-	if val, _ := g.rigth(x, y); currrentTree > val {
-		return true
+	if direction == Rigth {
+		val, vis := g.current(x, y+1)
+		return currrentTree >= val && vis
 	}
 
 	return false
@@ -93,27 +113,33 @@ func (g *Grid) current(x, y int) (int, bool) {
 	return g.Data[x][y], g.Vis[x][y]
 }
 
-func (g *Grid) top(x, y int) (int, bool) {
-	return g.Data[x+1][y], g.Vis[x+1][y]
-}
-
-func (g *Grid) down(x, y int) (int, bool) {
-	return g.Data[x-1][y], g.Vis[x-1][y]
-}
-
-func (g *Grid) left(x, y int) (int, bool) {
-	return g.Data[x][y-1], g.Vis[x][y-1]
-}
-
-func (g *Grid) rigth(x, y int) (int, bool) {
-	return g.Data[x][y+1], g.Vis[x][y+1]
-}
-
+// iterate ech rectangle from outer to inside.
 func (g *Grid) SolveVisibility() {
-	for i := 0; i < g.Heigth; i++ {
-		for j := 0; j < g.Width; j++ {
-			g.Vis[i][j] = g.getVisibility(i, j)
-		}
+	for i := 0; i < g.Heigth/2-1; i++ {
+		g.rectangleVisibility(i, i)
+	}
+}
+
+func (g *Grid) rectangleVisibility(x, y int) {
+	i := x
+	//Top line
+	for j := y; j < g.Width-y; j++ {
+		g.Vis[i][j] = g.getVisibility(i, j, Top)
+	}
+	//Left line
+	j := y
+	for i := x; i < g.Heigth-x; i++ {
+		g.Vis[i][j] = g.getVisibility(i, j, Left)
+	}
+	//Rigth line
+	j = g.Width - 1 - x
+	for i := x; i < g.Heigth-y; i++ {
+		g.Vis[i][j] = g.getVisibility(i, j, Rigth)
+	}
+	//Down rigth
+	i = g.Heigth - x - 1
+	for j := y; j < g.Width-y; j++ {
+		g.Vis[i][j] = g.getVisibility(i, j, Down)
 	}
 }
 
